@@ -6,26 +6,54 @@ cc.Class({
             default: null,
             type: cc.Layout,
         },
-        
+
         boat: {
             default: null,
             type: cc.Layout,
         },
-        
+
         right: {
             default: null,
             type: cc.Layout,
         },
-        
+
+        tips: {
+            default: null,
+            type: cc.Label,
+        },
+
         side: true,
     },
 
     onLoad: function () {
-
+        // 船在左岸
+        var x = this.left.node.x + this.left.node.width + 10;
+        this.boat.node.setPosition(x, 0);
     },
 
     onBoat: function (node) {
         cc.log("onBoat:", node.name);
+
+        // 请装左岸
+        if (this.side && node.parent === this.right.node) {
+            cc.log("onBoat failed: please select left side");
+            this.onTips("请装左岸货物");
+            return;
+        }
+
+        // 请装右岸
+        if (!this.side && node.parent === this.left.node) {
+            cc.log("onBoat failed: please select right side");
+            this.onTips("请装右岸货物");
+            return;
+        }
+
+        // 船已超载
+        if (this.boat.node.childrenCount >= 1) {
+            cc.log("onBoat failed: boat is full");
+            this.onTips("船已超载");
+            return;
+        }
 
         // 节点坐标
         node.setPosition(0, 0);
@@ -36,13 +64,11 @@ cc.Class({
         // 添加节点
         this.boat.node.addChild(node);
 
-        cc.log("onBoat successfully:", node.name);
+        cc.log("onBoat successful:", node.name);
     },
 
     offBoat: function (node) {
         cc.log("offBoat:", node.name);
-
-        if (!node.isChildOf(this.boat.node)) return;
 
         // 节点坐标
         node.setPosition(0, 0);
@@ -57,7 +83,7 @@ cc.Class({
             this.right.node.addChild(node);
         }
 
-        cc.log("offBoat successfully:", node.name);
+        cc.log("offBoat successful:", node.name);
     },
 
     onBtnClick: function (event) {
@@ -70,6 +96,68 @@ cc.Class({
         } else {
             this.onBoat(node);
         }
+    },
+
+    onBtnCrossRiver: function () {
+        this.boat.node.runAction(cc.sequence(cc.moveTo(2.0, cc.p(-this.boat.node.x, 0)), cc.callFunc(function () {
+            // 过河
+            this.side = !this.side;
+
+            // 自动下船
+            var components = this.boat.getComponentsInChildren(cc.Button);
+            for (var i = 0; i < components.length; i++) {
+                this.offBoat(components[i].node);
+            }
+
+            // 竞争检测
+            if (!this.raceDetect()) {
+                this.boat.node.setPosition(cc.p(-this.boat.node.x, 0));
+
+                for (var j = 0; j < components.length; j++) {
+                    this.onBoat(components[j].node);
+                }
+
+                this.side = !this.side;
+            }
+        }, this)));
+    },
+
+    raceDetect: function () {
+        if (this.side) {
+            if (this.right.node.getChildByName("Sheep")) {
+                // 右岸狼吃羊
+                if (this.right.node.getChildByName("Wolf")) {
+                    this.onTips("右岸的羊被狼吃掉了");
+                    return false;
+                }
+                // 右岸羊吃菜
+                if (this.right.node.getChildByName("Cabbage")) {
+                    this.onTips("右岸的菜被羊吃掉了");
+                    return false;
+                }
+            }
+        } else {
+            if (this.left.node.getChildByName("Sheep")) {
+                // 左岸狼吃羊
+                if (this.left.node.getChildByName("Wolf")) {
+                    this.onTips("左岸的羊被狼吃掉了");
+                    return false;
+                }
+                // 左岸羊吃菜
+                if (this.left.node.getChildByName("Cabbage")) {
+                    this.onTips("左岸的菜被羊吃掉了");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    },
+
+    onTips: function (str) {
+        this.tips.string = str;
+        this.tips.node.opacity = 255;
+        this.tips.node.runAction(cc.fadeOut(2.0));
     },
 
     update: function (dt) {
