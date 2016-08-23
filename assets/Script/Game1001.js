@@ -2,32 +2,46 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        // 左岸
         left: {
             default: null,
             type: cc.Layout,
         },
 
+        // 船
         boat: {
             default: null,
             type: cc.Layout,
         },
 
+        // 右岸
         right: {
             default: null,
             type: cc.Layout,
         },
 
+        // 描述
+        desc: {
+            default: null,
+            type: cc.Label,
+        },
+
+        // 提示
         tips: {
             default: null,
             type: cc.Label,
         },
 
+        // 位置
         side: true,
     },
 
     onLoad: function () {
+        // 描述宽度
+        this.desc.node.width = cc.winSize.width - 20;
+
         // 船在左岸
-        var x = this.left.node.x + this.left.node.width + 10;
+        var x = -cc.winSize.width/2.0 + this.left.node.width*1.6;
         this.boat.node.setPosition(x, 0);
     },
 
@@ -103,8 +117,10 @@ cc.Class({
             // 过河
             this.side = !this.side;
 
-            // 自动下船
+            // 船上货物
             var components = this.boat.getComponentsInChildren(cc.Button);
+
+            // 自动下船
             for (var i = 0; i < components.length; i++) {
                 this.offBoat(components[i].node);
             }
@@ -118,6 +134,11 @@ cc.Class({
                 }
 
                 this.side = !this.side;
+            }
+
+            // 输赢判断
+            if (this.right.node.childrenCount === 3) {
+                this.onTips("恭喜过关");
             }
         }, this)));
     },
