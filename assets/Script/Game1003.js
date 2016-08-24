@@ -42,7 +42,7 @@ cc.Class({
 
         // 船在左岸
         var x = -cc.winSize.width/2.0 + this.left.node.width*1.6;
-        this.boat.node.setPosition(x, 0);
+        this.boat.node.setPosition(x, this.boat.node.y);
     },
 
     onBoat: function (node) {
