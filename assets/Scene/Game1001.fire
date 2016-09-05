@@ -1876,7 +1876,8 @@
     "node": {
       "__id__": 45
     },
-    "_enabled": true
+    "_enabled": true,
+    "title": null
   },
   {
     "__type__": "cc.Canvas",

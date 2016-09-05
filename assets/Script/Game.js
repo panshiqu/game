@@ -2,10 +2,17 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        // 标题
+        title: {
+            default: null,
+            type: cc.Label,
+        },
     },
 
     onLoad: function () {
-
+        if (this.title && this.title.node.width > cc.view.getVisibleSize().width) {
+            this.title.node.width = cc.view.getVisibleSize().width;
+        }
     },
 
     onBtnClick: function (event) {

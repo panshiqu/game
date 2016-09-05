@@ -8,6 +8,6 @@
   },
   "packageName": "org.cocos2d.game",
   "startScene": "474cdcbd-cbc1-4450-bdf7-ce120c27825f",
-  "title": "game",
-  "webOrientation": "landscape"
+  "title": "iplaygame",
+  "webOrientation": "auto"
 }
